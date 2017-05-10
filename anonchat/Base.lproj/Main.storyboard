@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Welcome View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="WelcomeViewController" customModule="anonchat" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AnonChat" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lcT-VK-BCe">
+                                <rect key="frame" x="89" y="170" width="198" height="48"/>
+                                <fontDescription key="fontDescription" type="system" weight="heavy" pointSize="40"/>
+                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oht-I5-dRn">
+                                <rect key="frame" x="64" y="552" width="248" height="35"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="248" id="F38-9k-kgJ"/>
+                                    <constraint firstAttribute="height" constant="35" id="dhT-tl-Mam"/>
+                                </constraints>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="a4i-tt-44V">
+                                <rect key="frame" x="63" y="552" width="248" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="248" id="8rX-zX-BGR"/>
+                                    <constraint firstAttribute="height" constant="35" id="lmY-RW-8PU"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <state key="normal" title="Login Anonymously"/>
+                                <connections>
+                                    <segue destination="7kI-xM-HjO" kind="show" id="MSR-vu-Bmq"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="0.9635482253044656" green="1" blue="0.0011317555262458923" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="lcT-VK-BCe" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="150" id="0j2-aJ-M1e"/>
+                            <constraint firstItem="lcT-VK-BCe" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Gkf-rW-dtQ"/>
+                            <constraint firstItem="a4i-tt-44V" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="T8m-lU-A9k"/>
+                            <constraint firstItem="oht-I5-dRn" firstAttribute="top" secondItem="a4i-tt-44V" secondAttribute="top" id="iod-UL-k2D"/>
+                            <constraint firstItem="oht-I5-dRn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="vDB-yk-q9R"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="a4i-tt-44V" secondAttribute="bottom" constant="80" id="wuz-qI-Yph"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-364" y="-9"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="rJv-72-1aG">
+            <objects>
+                <navigationController id="7kI-xM-HjO" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="k3f-xh-age">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="pX5-xw-LhX" kind="relationship" relationship="rootViewController" id="iyg-iI-36v"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="i4Y-Uk-VaY" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="410" y="-9"/>
+        </scene>
+        <!--AnonChat-->
+        <scene sceneID="has-aH-ucD">
+            <objects>
+                <viewController id="pX5-xw-LhX" customClass="ChatViewController" customModule="anonchat" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="bHD-rS-bpd"/>
+                        <viewControllerLayoutGuide type="bottom" id="XPL-Ck-Hmo"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="pnB-M9-r5k">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="AnonChat" id="Dsb-Xy-Xe0"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fg2-25-Zi6" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1183" y="-9"/>
+        </scene>
+    </scenes>
+</document>

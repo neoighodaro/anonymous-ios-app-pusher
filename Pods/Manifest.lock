@@ -1,0 +1,21 @@
+PODS:
+  - Alamofire (4.4.0)
+  - JSQMessagesViewController (7.3.4):
+    - JSQSystemSoundPlayer (~> 2.0.1)
+  - JSQSystemSoundPlayer (2.0.1)
+  - PusherSwift (4.1.0)
+
+DEPENDENCIES:
+  - Alamofire
+  - JSQMessagesViewController
+  - PusherSwift
+
+SPEC CHECKSUMS:
+  Alamofire: dc44b1600b800eb63da6a19039a0083d62a6a62d
+  JSQMessagesViewController: 39fed975e3c9f8eba7292071e29eeb541d105e66
+  JSQSystemSoundPlayer: c5850e77a4363ffd374cd851154b9af93264ed8d
+  PusherSwift: 13257260d77445f44ee26d7843e9311186b26e79
+
+PODFILE CHECKSUM: 15cfec92327982735c3a039867ce30c9794d0479
+
+COCOAPODS: 1.2.1
