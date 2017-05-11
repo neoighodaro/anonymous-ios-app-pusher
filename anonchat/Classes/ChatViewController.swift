@@ -142,7 +142,7 @@ class ChatViewController: JSQMessagesViewController {
             host: .cluster("mt1")
         )
         
-        pusher = Pusher(key: "efba09906153a581bd31", options: options)
+        pusher = Pusher(key: "PUSHER_ID", options: options)
         
         let channel = pusher.subscribe("chatroom")
 

@@ -6,10 +6,10 @@ var bodyParser = require('body-parser');
 var app = express();
 
 var pusher = new Pusher({
-  appId: '337228',
-  key: 'efba09906153a581bd31',
-  secret: '12a8bd7d8d9c8e2a3fbf',
-  cluster: 'mt1',
+  appId: 'PUSHER_ID',
+  key: 'PUSHER_KEY',
+  secret: 'PUSHER_SECRET',
+  cluster: 'PUSHER_CLUSTER',
   encrypted: true
 });
 
