@@ -6,10 +6,10 @@ var bodyParser = require('body-parser');
 var app = express();
 
 var pusher = new Pusher({
-  appId: 'PUSHER_ID',
-  key: 'PUSHER_KEY',
-  secret: 'PUSHER_SECRET',
-  cluster: 'PUSHER_CLUSTER',
+  appId: '337228',
+  key: 'efba09906153a581bd31',
+  secret: '12a8bd7d8d9c8e2a3fbf',
+  cluster: 'mt1',
   encrypted: true
 });
 
@@ -24,6 +24,15 @@ app.post('/messages', function(req, res){
   pusher.trigger('chatroom', 'new_message', message);
   res.json({success: 200});
 });
+
+app.post('/typing', function (req, res) {
+  var message = {
+    sender: req.body.sender,
+    text: req.body.sender + " is typing..."
+  };
+  pusher.trigger('chatroom', 'user_typing', message);
+  res.json({success: 200})
+})
 
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

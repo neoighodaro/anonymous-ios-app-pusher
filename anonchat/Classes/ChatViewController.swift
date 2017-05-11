@@ -15,18 +15,17 @@ class ChatViewController: JSQMessagesViewController {
     static let API_ENDPOINT = "http://localhost:4000";
 
     var messages = [JSQMessage]()
-    var pusher : Pusher!
+    var pusher: Pusher!
+    
+    var isBusySendingEvent : Bool = false
 
     var incomingBubble: JSQMessagesBubbleImage!
     var outgoingBubble: JSQMessagesBubbleImage!
+    
+    var isTypingEventLifetime = Timer()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let n = Int(arc4random_uniform(1000))
-
-        senderId = "anonymous" + String(n)
-        senderDisplayName = senderId
 
         inputToolbar.contentView.leftBarButtonItem = nil
 
@@ -42,6 +41,13 @@ class ChatViewController: JSQMessagesViewController {
         collectionView?.layoutIfNeeded()
 
         listenForNewMessages()
+        
+        isTypingEventLifetime = Timer.scheduledTimer(timeInterval: 2.0,
+                                                     target: self,
+                                                     selector: #selector(isTypingEventExpireAction),
+                                                     userInfo: nil,
+                                                     repeats: true)
+        
     }
 
     override func collectionView(_ collectionView: JSQMessagesCollectionView!, messageDataForItemAt indexPath: IndexPath!) -> JSQMessageData! {
@@ -70,7 +76,21 @@ class ChatViewController: JSQMessagesViewController {
         addMessage(senderId: senderId, name: senderId, text: text)
         self.finishSendingMessage(animated: true)
     }
+    
+    override func textViewDidChange(_ textView: UITextView) {
+        super.textViewDidChange(textView)
+        sendIsTypingEvent(forUser: senderId)
+    }
 
+    public func setSenderId(name: String) {
+        senderId = name
+        senderDisplayName = senderId
+    }
+    
+    public func isTypingEventExpireAction() {
+        navigationItem.title = "AnonChat"
+    }
+    
     private func setupOutgoingBubble() -> JSQMessagesBubbleImage {
         let bubbleImageFactory = JSQMessagesBubbleImageFactory()
         return bubbleImageFactory!.outgoingMessagesBubbleImage(with: UIColor.jsq_messageBubbleBlue())
@@ -83,14 +103,28 @@ class ChatViewController: JSQMessagesViewController {
 
     private func postMessage(name: String, message: String) {
         let params: Parameters = ["sender": name, "text": message]
-
-        Alamofire.request(ChatViewController.API_ENDPOINT + "/messages", method: .post, parameters: params).validate().responseJSON { response in
+        hitEndpoint(url: ChatViewController.API_ENDPOINT + "/messages", parameters: params)
+    }
+    
+    private func sendIsTypingEvent(forUser: String) {
+        if isBusySendingEvent == false {
+            isBusySendingEvent = true
+            let params: Parameters = ["sender": forUser]
+            hitEndpoint(url: ChatViewController.API_ENDPOINT + "/typing", parameters: params)
+        } else {
+            print("Still sending something")
+        }
+    }
+    
+    private func hitEndpoint(url: String, parameters: Parameters) {
+        Alamofire.request(url, method: .post, parameters: parameters).validate().responseJSON { response in
             switch response.result {
-
             case .success:
+                self.isBusySendingEvent = false
                 // Succeeded, do something
                 print("Succeeded")
             case .failure(let error):
+                self.isBusySendingEvent = false
                 // Failed, do something
                 print(error)
             }
@@ -102,17 +136,17 @@ class ChatViewController: JSQMessagesViewController {
             messages.append(message)
         }
     }
-
+    
     private func listenForNewMessages() {
         let options = PusherClientOptions(
-            host: .cluster("PUSHER_CLUSTER")
+            host: .cluster("mt1")
         )
-
-        pusher = Pusher(key: "PUSHER_KEY", options: options)
-
+        
+        pusher = Pusher(key: "efba09906153a581bd31", options: options)
+        
         let channel = pusher.subscribe("chatroom")
-        let _ = channel.bind(eventName: "new_message", callback: { (data: Any?) -> Void in
 
+        channel.bind(eventName: "new_message", callback: { (data: Any?) -> Void in
             if let data = data as? [String: AnyObject] {
                 let author = data["sender"] as! String
 
@@ -123,6 +157,17 @@ class ChatViewController: JSQMessagesViewController {
                 }
             }
         })
+
+        channel.bind(eventName: "user_typing", callback: { (data: Any?) -> Void in
+            if let data = data as? [String: AnyObject] {
+                let author = data["sender"] as! String
+                if author != self.senderId {
+                    let text = data["text"] as! String
+                    self.navigationItem.title = text
+                }
+            }
+        })
+        
         pusher.connect()
     }
 }

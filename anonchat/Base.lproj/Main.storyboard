@@ -28,17 +28,16 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oht-I5-dRn">
-                                <rect key="frame" x="64" y="552" width="248" height="35"/>
+                                <rect key="frame" x="63.5" y="364" width="248" height="35"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="248" id="F38-9k-kgJ"/>
                                     <constraint firstAttribute="height" constant="35" id="dhT-tl-Mam"/>
                                 </constraints>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="a4i-tt-44V">
-                                <rect key="frame" x="63" y="552" width="248" height="35"/>
+                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="a4i-tt-44V">
+                                <rect key="frame" x="63" y="364" width="250" height="35"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="248" id="8rX-zX-BGR"/>
                                     <constraint firstAttribute="height" constant="35" id="lmY-RW-8PU"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
@@ -47,21 +46,41 @@
                                     <segue destination="7kI-xM-HjO" kind="show" id="MSR-vu-Bmq"/>
                                 </connections>
                             </button>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Username" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="a2d-bU-oA4">
+                                <rect key="frame" x="63.5" y="321" width="248" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="35" id="Xav-35-vTd"/>
+                                </constraints>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" enablesReturnKeyAutomatically="YES"/>
+                                <connections>
+                                    <action selector="editingUsername:" destination="BYZ-38-t0r" eventType="editingChanged" id="Bkz-Z1-KSx"/>
+                                </connections>
+                            </textField>
                         </subviews>
                         <color key="backgroundColor" red="0.9635482253044656" green="1" blue="0.0011317555262458923" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="lcT-VK-BCe" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="150" id="0j2-aJ-M1e"/>
+                            <constraint firstItem="a4i-tt-44V" firstAttribute="top" secondItem="a2d-bU-oA4" secondAttribute="bottom" constant="8" symbolic="YES" id="3ap-7x-9YW"/>
                             <constraint firstItem="lcT-VK-BCe" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Gkf-rW-dtQ"/>
                             <constraint firstItem="a4i-tt-44V" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="T8m-lU-A9k"/>
+                            <constraint firstItem="a2d-bU-oA4" firstAttribute="top" secondItem="lcT-VK-BCe" secondAttribute="bottom" constant="103" id="Wws-Jz-Xd1"/>
+                            <constraint firstItem="a2d-bU-oA4" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="gon-Ao-Zq0"/>
                             <constraint firstItem="oht-I5-dRn" firstAttribute="top" secondItem="a4i-tt-44V" secondAttribute="top" id="iod-UL-k2D"/>
+                            <constraint firstItem="a2d-bU-oA4" firstAttribute="trailing" secondItem="oht-I5-dRn" secondAttribute="trailing" id="muu-5U-qUf"/>
+                            <constraint firstItem="a4i-tt-44V" firstAttribute="top" secondItem="a2d-bU-oA4" secondAttribute="bottom" constant="8" id="olJ-sk-9F7"/>
+                            <constraint firstItem="a2d-bU-oA4" firstAttribute="leading" secondItem="a4i-tt-44V" secondAttribute="leading" id="tWt-Uo-qLi"/>
                             <constraint firstItem="oht-I5-dRn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="vDB-yk-q9R"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="a4i-tt-44V" secondAttribute="bottom" constant="80" id="wuz-qI-Yph"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="loginBtn" destination="a4i-tt-44V" id="8Gc-Tm-ES0"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-364" y="-9"/>
+            <point key="canvasLocation" x="-364" y="-9.4452773613193415"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="rJv-72-1aG">
@@ -96,7 +115,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fg2-25-Zi6" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1183" y="-9"/>
+            <point key="canvasLocation" x="1181.5999999999999" y="-9.4452773613193415"/>
         </scene>
     </scenes>
 </document>
