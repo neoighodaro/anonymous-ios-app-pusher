@@ -1,4 +1,7 @@
-# Create an anonymous public iOS chat app using Pusher
+# v1.1.1 Adding a who's typing feature in iOS
+This would demonstrate how to add a who's typing feature to the anonymous public iOS chat app we created in v1.0
+
+# v1.0 Create an anonymous public iOS chat app using Pusher
 Here is the source code demonstrating how to create an anonymous public iOS chat app using Pusher.
 
 ## Requirements
