@@ -104,7 +104,11 @@ class ChatViewController: JSQMessagesViewController {
     }
 
     private func listenForNewMessages() {
-        pusher = Pusher(key: "PUSHER_KEY")
+        let options = PusherClientOptions(
+            host: .cluster("PUSHER_CLUSTER")
+        )
+
+        pusher = Pusher(key: "PUSHER_KEY", options: options)
 
         let channel = pusher.subscribe("chatroom")
         let _ = channel.bind(eventName: "new_message", callback: { (data: Any?) -> Void in
