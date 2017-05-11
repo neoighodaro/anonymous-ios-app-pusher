@@ -9,7 +9,7 @@ var pusher = new Pusher({
   appId: 'PUSHER_ID',
   key: 'PUSHER_KEY',
   secret: 'PUSHER_SECRET',
-  cluster: 'mt1',
+  cluster: 'PUSHER_CLUSTER',
   encrypted: true
 });
 
