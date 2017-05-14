@@ -239,6 +239,8 @@ With this we have completed our task and we should have a functioning who is typ
 
 ### Conclusion
 
-There are many improvements you can obviously add to make the experience a little more seemless, but this demonstrates how the feature can be implemented easily into your iOS application. Have an idea you want to incorporate or just some feedback? Please leave a comment below and tell us what it is.
+There are many improvements you can obviously add to make the experience a little more seemless, but this demonstrates how the feature can be implemented easily into your iOS application. The source code to the app is [available on GitHub](https://github.com/neoighodaro/anonymous-ios-app-pusher/tree/v1.1.1).
+
+Have an idea you want to incorporate or just some feedback? Please leave a comment below and tell us what it is.
 
 In the next article, we are going to see how to add a message delivered feature to our chat application. As practise, see if you can implement this yourself.

@@ -14,6 +14,7 @@
 		0A91C7C31EC03FF9008F3702 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A91C7C21EC03FF9008F3702 /* WelcomeViewController.swift */; };
 		7F150B279347CCBF65EF7517 /* Pods_anonchat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A191A35C37217B78439F564 /* Pods_anonchat.framework */; };
 		B50051301EC2080D00F2ED8D /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B500512F1EC2080D00F2ED8D /* ChatViewController.swift */; };
+		B5D5C21E1EC89BC6002CF619 /* AnonMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D5C21D1EC89BC6002CF619 /* AnonMessage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		1B1226120728AD03B15B38AA /* Pods-anonchat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-anonchat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-anonchat/Pods-anonchat.debug.xcconfig"; sourceTree = "<group>"; };
 		790F52D31ABB9F74860C7C4A /* Pods-anonchat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-anonchat.release.xcconfig"; path = "Pods/Target Support Files/Pods-anonchat/Pods-anonchat.release.xcconfig"; sourceTree = "<group>"; };
 		B500512F1EC2080D00F2ED8D /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ChatViewController.swift; path = Classes/ChatViewController.swift; sourceTree = "<group>"; };
+		B5D5C21D1EC89BC6002CF619 /* AnonMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AnonMessage.swift; path = Classes/AnonMessage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +88,7 @@
 			children = (
 				0A91C7C21EC03FF9008F3702 /* WelcomeViewController.swift */,
 				B500512F1EC2080D00F2ED8D /* ChatViewController.swift */,
+				B5D5C21D1EC89BC6002CF619 /* AnonMessage.swift */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -143,6 +146,7 @@
 					0A91C7AA1EC03BB7008F3702 = {
 						CreatedOnToolsVersion = 8.1;
 						DevelopmentTeam = FMQ6R58UAV;
+						LastSwiftMigration = 0810;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -232,6 +236,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A91C7AF1EC03BB7008F3702 /* AppDelegate.swift in Sources */,
+				B5D5C21E1EC89BC6002CF619 /* AnonMessage.swift in Sources */,
 				B50051301EC2080D00F2ED8D /* ChatViewController.swift in Sources */,
 				0A91C7C31EC03FF9008F3702 /* WelcomeViewController.swift in Sources */,
 			);
@@ -357,12 +362,14 @@
 			baseConfigurationReference = 1B1226120728AD03B15B38AA /* Pods-anonchat.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = FMQ6R58UAV;
 				INFOPLIST_FILE = anonchat/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.creativitykills.anonchat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -372,6 +379,7 @@
 			baseConfigurationReference = 790F52D31ABB9F74860C7C4A /* Pods-anonchat.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = FMQ6R58UAV;
 				INFOPLIST_FILE = anonchat/Info.plist;

@@ -14,7 +14,7 @@ import JSQMessagesViewController
 class ChatViewController: JSQMessagesViewController {
     static let API_ENDPOINT = "http://localhost:4000";
 
-    var messages = [JSQMessage]()
+    var messages = [AnonMessage]()
     var pusher: Pusher!
     
     var isBusySendingEvent : Bool = false
@@ -52,6 +52,33 @@ class ChatViewController: JSQMessagesViewController {
 
     override func collectionView(_ collectionView: JSQMessagesCollectionView!, messageDataForItemAt indexPath: IndexPath!) -> JSQMessageData! {
         return messages[indexPath.item]
+    }
+    
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, attributedTextForCellBottomLabelAt indexPath: IndexPath!) -> NSAttributedString! {
+        if !isAnOutgoingMessage(indexPath) {
+            return nil
+        }
+        
+        let message = messages[indexPath.row]
+
+        switch (message.status) {
+        case .sending:
+            return NSAttributedString(string: "Sending...")
+        case .sent:
+            return NSAttributedString(string: "Sent!")
+        case .delivered:
+            return NSAttributedString(string: "Delivered")
+        case .failed:
+            return NSAttributedString(string: "Failed")
+        }
+    }
+    
+    private func isAnOutgoingMessage(_ indexPath: IndexPath!) -> Bool {
+        return messages[indexPath.row].senderId == senderId
+    }
+    
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, layout collectionViewLayout: JSQMessagesCollectionViewFlowLayout!, heightForCellBottomLabelAt indexPath: IndexPath!) -> CGFloat {
+        return CGFloat(15.0)
     }
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -132,7 +159,7 @@ class ChatViewController: JSQMessagesViewController {
     }
 
     private func addMessage(senderId: String, name: String, text: String) {
-        if let message = JSQMessage(senderId: senderId, displayName: name, text: text) {
+        if let message = AnonMessage(senderId: senderId, status: AnonMessageStatus.sending, displayName: name, text: text) {
             messages.append(message)
         }
     }
