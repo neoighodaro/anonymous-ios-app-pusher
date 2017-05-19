@@ -7,10 +7,10 @@ var sleep = require('sleep');
 var app = express();
 
 var pusher = new Pusher({
-  appId: '337228',
-  key: '4a2632feed06a8ef84f9',
-  secret: '6ffdb41fb1e9925f5e6e',
-  cluster: 'mt1',
+  appId: 'PUSHER_ID',
+  key: 'PUSHER_KEY',
+  secret: 'PUSHER_SECRET',
+  cluster: 'PUSHER_CLUSTER',
   encrypted: true
 });
 

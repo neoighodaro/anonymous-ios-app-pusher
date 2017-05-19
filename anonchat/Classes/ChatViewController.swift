@@ -179,10 +179,10 @@ class ChatViewController: JSQMessagesViewController {
     
     private func listenForNewMessages() {
         let options = PusherClientOptions(
-            host: .cluster("mt1")
+            host: .cluster("PUSHER_CLUSTER")
         )
         
-        pusher = Pusher(key: "4a2632feed06a8ef84f9", options: options)
+        pusher = Pusher(key: "PUSHER_KEY", options: options)
         
         let channel = pusher.subscribe("chatroom")
 
