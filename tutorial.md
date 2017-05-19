@@ -1,205 +1,139 @@
-# How to build a who's typing feature in iOS
+# Add delivery status to an iOS chat app using Pusher
 
-In our previous article we considered [How to create a public anonymous iOS chat application](#). We were able to create the application using Swift and Pusher so the application wont save state.
+In our [previous article](#) we expanded our [public anonymous iOS chat application](#) by adding a someone is typing a message feature to the applicetion. In that article, we had to make some changes to the existing code base to add the feature.
 
-In this article, we are going to expand that application and add a who's typing feature to the application. If you have not read the previous article, I suggest you do so, but if you do not want to then you can grab the [source code to the article here](https://github.com/neoighodaro/anonymous-ios-app-pusher) and follow along.
 
-## What we will be building
 
-As mentioned earlier, we will be adding a who's typing feature to our application. This is supposed to indicate that someone is typing a message on the other end just like WhatsApp, WeChat or instant messaging clients do.
+### What we will be building
 
-![How to build a who's typing feature in iOS](https://dl.dropbox.com/s/j8a4hqcddx7kvpb/add-whos-typing-feature-ios-app-using-pusher-1.gif)
+In this article, we will be taking it a step further by adding another feature: **delivery status** for an outgoing message. We would be adding an indication on the application that will tell us when the message is sending and when it has been delivered.
 
-### Setting up the application
+![](https://dl.dropbox.com/s/qrml2une712my9f/message-delivery-status-on-ios-using-pusher-2.gif)
 
-Open the root directory of the source code you downloaded above, then, open the `.xcworkspace` file included in the directory; this should launch XCode. Now we already have a storyboard. In the story board we have an entry controller, and this has a button to login anonymously. Clicking the button leads to the navigation controller which in turn loads the `ChatViewController`.
+### Getting Started
 
-![How to build a who's typing feature in iOS](https://dl.dropbox.com/s/9vt5qhmy9pj1p63/add-whos-typing-feature-ios-app-using-pusher-2.png)
+To get started we would be using the base application that we had created in the previous article. You can get the source to the application [on Github](https://github.com/neoighodaro/anonymous-ios-app-pusher/tree/v1.1.1). After downloading the application, unzip it and open the `.xcworkspace` file in the root of the directory, this should launch XCode. Unlike the last time, we wont be making any UI changes, just pure code additions, changes and adjustments. 
 
-> **Note**: To test the application you might need to customise the Pusher application credentials in the `ChatViewController` and the `index.js` file in the web app directory. You will also need to run `node index.js` in the webapp directory to start a local webserver.
+Before we continue, make sure you already have your [Pusher](https://pusher.com) application ready and replace the `PUSHER_SECRET`, `PUSHER_ID`, `PUSHER_KEY`, and `PUSHER_CLUSTER` with the one provided for your application by Pusher.
 
-### What we need to do
+### Plan of Action
 
-To make this application do what we need it to do we need to do some new things. First, we will add a text field in the login screen that allows the user input whatever username they want to be known as. Next, we will add a new endpoint to the web server application that will trigger Pusher once someone starts typing. We will add a new listener in the application that listens in for when someone is typing and finally we will trigger the new endpoint when someone is entering text into the 'New message' field.
+So what do we need to do to get the message delivery to be displayed in this chat application? Creating a list of things we want to do will make it that much easier to know what to do and plan better on how to do it.
 
-Drag a textfield to the login view and make it look like what is in the screenshot below. 
+* Extend the `JSQMessage` class to support new properties like `id` and `status`. With this we can track the status and the id of the message that has been sent.
+* For every message check if the message is an outgoing message, if it is, check the message `status` and then set.
+* When a new message is sent, check the response if it is successful, if yes, change the `status` of the message.
+* Update the layout to reflect all the changes made to the message instance.
 
-![How to build a who's typing feature in iOS](https://dl.dropbox.com/s/vi72z93rudgih94/add-whos-typing-feature-ios-app-using-pusher-3.png)
 
-#### Updating the Login Controller
 
-Open the split view and make sure the `WelcomeViewController` is the one on the right. You have to now create an `@IBOutlet` for both the login textfield and an `@IBAction` for the login button. Your `WelcomeViewController` should now look something like this:
+### Development
+
+##### Extending the JSQMessage class 
+
+The `JSQMessage` class is the class that holds the message details and it is part of the `JSQMessagesViewController` package that we pulled using cocoapods in the first article. We will extend this class by creating another class `AnonMessage` that extends it. Then we will change all the instances of `JSQMessage` class in our codebase:
 
 ```swift
 import UIKit
+import JSQMessagesViewController
 
-class WelcomeViewController: UIViewController {
-    var username : String = ""
+enum AnonMessageStatus {
+    case sending
+    case delivered
+}
 
-    @IBOutlet weak var loginBtn: UIButton!
+class AnonMessage: JSQMessage {
+    var status : AnonMessageStatus
+    var id : Int
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    public init!(senderId: String, status: AnonMessageStatus, displayName: String, text: String, id: Int) {
+        self.status = status
+        self.id = id
+        super.init(senderId: senderId, senderDisplayName: displayName, date: Date.init(), text: text)
     }
-
-    @IBAction func editingUsername(_ sender: UITextField) {
+    
+    public required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 ```
 
-Now we need to add some validation to the text field and then when the validation passes, we can then assign the username entered to the `ChatViewController` and load the `ChatViewController`.
+In the code above we create a class and an enum where we define all the states we expect a message to exist in, you can always expand them to suite your needs.
 
-```swift
-import UIKit
+In the class extension, we added a new way to initialise the class. This will take the new parameters `id` and `status` and assign them to the class then initialise the class using the parent method.
 
-class WelcomeViewController: UIViewController {
-    var username : String = ""
+##### Changes to the ChatViewController
 
-    @IBOutlet weak var loginBtn: UIButton!
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-
-
-    @IBAction func editingUsername(_ sender: UITextField) {
-        if sender.hasText && (sender.text?.characters.count)! >= 3 && noCaps(text: sender.text!) && noSpaces(text: sender.text!) {
-            loginBtn.isEnabled = true
-        } else {
-            loginBtn.isEnabled = false
-        }
-        
-        username = sender.text!
-    }
-    
-    private func noSpaces(text: String) -> Bool {
-        let range = text.rangeOfCharacter(from: .whitespaces)
-        
-        return range == nil
-    }
-    
-    private func noCaps(text : String) -> Bool {
-        let capitalLetterRegEx  = ".*[A-Z]+.*"
-        let texttest = NSPredicate(format:"SELF MATCHES %@", capitalLetterRegEx)
-        let capitalresult = texttest.evaluate(with: text)
-        return capitalresult == false
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        segue.destination.childViewControllers.forEach({ (viewController) in
-            let classname = (NSStringFromClass(viewController.classForCoder).components(separatedBy: ".").last!)
-            if classname == "ChatViewController" {
-                let controller = viewController as? ChatViewController
-                controller?.setSenderId(name: self.username)
-            }
-        })
-    }
-}
-```
-
-This is the full `WelcomeViewController` after we have effected the changes. As you can see, the `editingUsername` checks to see if there is actually text, then if the username is 3 characters and longer. It then checks to see if there are `noCaps` and finally if there are `noSpaces`/. If all these pass then it sets the username. The `prepare` method then uses the `setSenderId` on the `ChatViewController` to set the username to a property in there.
-
-#### Adding the endpoint on the web server
-
-Now we want to add an endpoint on the web server that will trigger Pusher events everytime someone is typing. Open the `index.js`  in the `webapp` directory on your editor of choice. You can now add the `/typing` endpoint to the code as shown below:
-
-```javascript
-app.post('/typing', function (req, res) {
-  var message = {
-    sender: req.body.sender,
-    text: req.body.sender + " is typing..."
-  };
-  pusher.trigger('chatroom', 'user_typing', message);
-  res.json({success: 200})
-})
-```
-
-So now, everytime we hit the `/typing` endpoint, it should trigger pusher with the message `senderId is typing…`. Great.
-
-#### Triggering Pusher from the application when typing
-
-The next thing to do would be to trigger Pusher everytime the current user is typing on the application. This would basically hit the `/typing` endpoint we just created with the `username` as the `sender` parameter.
-
-To make sure we keep our code DRY, we have refactored the code a little. We have abstracted the part that hits our endpoint into one method called `hitEndpoint` and we use that now whenever we want to hit the endpoint.
+In the `didPressSend` method we will change a few things:
 
 ```Swift
-var isBusySendingEvent : Bool = false
+override func didPressSend(_ button: UIButton, withMessageText text: String, senderId: String, senderDisplayName: String, date: Date) {
+    let message = addMessage(senderId: senderId, name: senderId, text: text) as! AnonMessage
 
-private func postMessage(name: String, message: String) {
-    let params: Parameters = ["sender": name, "text": message]
-    hitEndpoint(url: ChatViewController.API_ENDPOINT + "/messages", parameters: params)
+    postMessage(message: message)
+    
+    finishSendingMessage(animated: true)
 }
+```
 
-private func sendIsTypingEvent(forUser: String) {
-    if isBusySendingEvent == false {
-        isBusySendingEvent = true
-        let params: Parameters = ["sender": forUser]
-        hitEndpoint(url: ChatViewController.API_ENDPOINT + "/typing", parameters: params)
-    } else {
-        print("Still sending something")
+First, the `addMessage` method will now return an `AnonMessage` instance. We will now pass this as the parameter to the `postMessage` class which makes a lot of sense.
+
+```swift
+private func addMessage(senderId: String, name: String, text: String) -> Any? {
+    let leStatus = senderId == self.senderId
+        ? AnonMessageStatus.sending
+        : AnonMessageStatus.delivered
+    
+    let message = AnonMessage(senderId: senderId, status: leStatus, displayName: name, text: text, id: messages.count)
+    
+    if (message != nil) {
+        messages.append(message as AnonMessage!)
     }
+    
+    return message
 }
 
-private func hitEndpoint(url: String, parameters: Parameters) {
+private func postMessage(message: AnonMessage) {
+    let params: Parameters = ["sender": message.senderId, "text": message.text]
+    hitEndpoint(url: ChatViewController.API_ENDPOINT + "/messages", parameters: params, message: message)
+}
+```
+
+We update the `addMessage` and `postMessage` methods to reflect the new changes. The `addMessage` function now uses the `AnonMessage` class extension as opposed to using the `JSQMessage` class. So we can now send the `status` and `id` as parameters while instantiating the `AnonMessage` class.
+
+We will also change the contents of the `hitEndpoint` method to reflect new changes for our feature to work:
+
+```Swift
+private func hitEndpoint(url: String, parameters: Parameters, message: AnonMessage? = nil) {
     Alamofire.request(url, method: .post, parameters: parameters).validate().responseJSON { response in
         switch response.result {
         case .success:
             self.isBusySendingEvent = false
-            // Succeeded, do something
-            print("Succeeded")
+
+            if message != nil {
+                message?.status = .delivered
+                self.collectionView.reloadData()
+            }
+            
         case .failure(let error):
             self.isBusySendingEvent = false
-            // Failed, do something
             print(error)
         }
     }
 }
-
-override func textViewDidChange(_ textView: UITextView) {
-    super.textViewDidChange(textView)
-    sendIsTypingEvent(forUser: senderId)
-}
 ```
 
-In the `sendIsTypingEvent` we have a quick flag that we use to stop the application from sending too many requests especially if the last one has not been fulfilled. Because we trigger this method everytime someone changes something on the text field this check is necessary.
+The `hitEndpoint`  method now has a third optional `AnonMessage` paramenter we can then use this to change the status of the message when there is a successful response to `.delivered` then we can reload the data so that the changes would be apparent.
 
-#### Adding a listener to pick when others are typing
-
-The last piece of the puzzle is adding a listener that picks up when someone else is typing and changes the view controllers title bar to `someone is typing…`. To do this, we would use the `subscribe` method on the `PusherChannel` object. 
+We will now make the final change to the application in our`listenForNewMessages` method:
 
 ```Swift
-override func viewDidLoad() {
-    super.viewDidLoad()
-
-    inputToolbar.contentView.leftBarButtonItem = nil
-
-    incomingBubble = JSQMessagesBubbleImageFactory().incomingMessagesBubbleImage(with: UIColor.jsq_messageBubbleBlue())
-    outgoingBubble = JSQMessagesBubbleImageFactory().outgoingMessagesBubbleImage(with: UIColor.jsq_messageBubbleGreen())
-
-    collectionView!.collectionViewLayout.incomingAvatarViewSize = CGSize.zero
-    collectionView!.collectionViewLayout.outgoingAvatarViewSize = CGSize.zero
-
-    automaticallyScrollsToMostRecentMessage = true
-
-    collectionView?.reloadData()
-    collectionView?.layoutIfNeeded()
-
-    listenForNewMessages()
-    
-    isTypingEventLifetime = Timer.scheduledTimer(timeInterval: 2.0,
-                                                 target: self,
-                                                 selector: #selector(isTypingEventExpireAction),
-                                                 userInfo: nil,
-                                                 repeats: true)
-    
-}
-
 private func listenForNewMessages() {
     let options = PusherClientOptions(
         host: .cluster("PUSHER_CLUSTER")
     )
     
-    pusher = Pusher(key: "PUSHER_ID", options: options)
+    pusher = Pusher(key: "PUSHER_KEY", options: options)
     
     let channel = pusher.subscribe("chatroom")
 
@@ -209,7 +143,10 @@ private func listenForNewMessages() {
 
             if author != self.senderId {
                 let text = data["text"] as! String
-                self.addMessage(senderId: author, name: author, text: text)
+                
+                let message = self.addMessage(senderId: author, name: author, text: text) as! AnonMessage?
+                message?.status = .delivered
+                
                 self.finishReceivingMessage(animated: true)
             }
         }
@@ -227,20 +164,57 @@ private func listenForNewMessages() {
     
     pusher.connect()
 }
+```
 
-public func isTypingEventExpireAction() {
-    navigationItem.title = "AnonChat"
+We have added a delivered status to the message once it is received by the Pusher listener on the application.
+
+We will now add some few new methods that would help us display the actual message on the chat interface.
+
+```Swift
+override func collectionView(_ collectionView: JSQMessagesCollectionView!, attributedTextForCellBottomLabelAt indexPath: IndexPath!) -> NSAttributedString! {
+    if !isAnOutgoingMessage(indexPath) {
+        return nil
+    }
+    
+    let message = messages[indexPath.row]
+
+    switch (message.status) {
+    case .sending:
+        return NSAttributedString(string: "Sending...")
+    case .delivered:
+        return NSAttributedString(string: "Delivered")
+    }
+}
+
+private func isAnOutgoingMessage(_ indexPath: IndexPath!) -> Bool {
+    return messages[indexPath.row].senderId == senderId
+}
+
+override func collectionView(_ collectionView: JSQMessagesCollectionView!, layout collectionViewLayout: JSQMessagesCollectionViewFlowLayout!, heightForCellBottomLabelAt indexPath: IndexPath!) -> CGFloat {
+    return CGFloat(15.0)
 }
 ```
 
-Above we made some changes, in the `listenForNewMessages` we added a new subscriotion to the `user_typing` event, and in the `viewDidLoad` method, we added a timer that just runs on intervals and resets the title of the application. So basically, the subscriber picks up the changes in the event from pusher, updates the navigation title, then the timer resets the title every x seconds.
+In the above code, we override the a collection view that shows an attributed text at the bottom label of a chat message. This is where we will display the message status for outgoing images.
 
-With this we have completed our task and we should have a functioning who is typing feature.
+In that method, we check to see if the message `isAnOutgoingMessage` then if it is, we can then use a `switch` statement to show one or the other based on the status of the message.
+
+In the second overriden collection view method, we specify the height of the bottom label so it is not invisible as the default is `0`. 
+
+Thats all, we can now run our application in XCode on our iPhone simulator. You should also run the node application that is accompanied in the code.
+
+```Shell
+$ node index.js
+```
+
+Now when a message is sent on our simulator, we can see it change from  *Sending…* just after it is sent to *delivered* when the message is delivered. 
 
 ### Conclusion
 
-There are many improvements you can obviously add to make the experience a little more seemless, but this demonstrates how the feature can be implemented easily into your iOS application. The source code to the app is [available on GitHub](https://github.com/neoighodaro/anonymous-ios-app-pusher/tree/v1.1.1).
+Now with the changes we have made, we have been able to add delivery status to our iOS chat application using Pusher and Swift. The source code to the application is available on [GitHub](#).
 
-Have an idea you want to incorporate or just some feedback? Please leave a comment below and tell us what it is.
+![Message delivery status on iOS using Pusher](https://dl.dropbox.com/s/45snbjc0oedc7w5/message-delivery-status-on-ios-using-pusher-1.png)
 
-In the next article, we are going to see how to add a message delivered feature to our chat application. As practise, see if you can implement this yourself.
+This should be seen as a guide to how easy it could be to implement this feature in our application. It should probably not be used in production. As an exercise, see if you can expand the feature of the chat application by adding more message statuses like *failed* and *read*.
+
+Have any questions or feedback, on the article? You can add them to the comment section below.

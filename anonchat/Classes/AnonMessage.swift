@@ -18,9 +18,11 @@ enum AnonMessageStatus {
 
 class AnonMessage: JSQMessage {
     var status : AnonMessageStatus
-
-    public init!(senderId: String, status: AnonMessageStatus, displayName: String, text: String) {
+    var id : Int
+    
+    public init!(senderId: String, status: AnonMessageStatus, displayName: String, text: String, id: Int) {
         self.status = status
+        self.id = id
         super.init(senderId: senderId, senderDisplayName: displayName, date: Date.init(), text: text)
     }
     

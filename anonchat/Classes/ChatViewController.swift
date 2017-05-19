@@ -99,9 +99,11 @@ class ChatViewController: JSQMessagesViewController {
     }
 
     override func didPressSend(_ button: UIButton, withMessageText text: String, senderId: String, senderDisplayName: String, date: Date) {
-        postMessage(name: senderId, message: text)
-        addMessage(senderId: senderId, name: senderId, text: text)
-        self.finishSendingMessage(animated: true)
+        let message = addMessage(senderId: senderId, name: senderId, text: text) as! AnonMessage
+
+        postMessage(message: message)
+        
+        finishSendingMessage(animated: true)
     }
     
     override func textViewDidChange(_ textView: UITextView) {
@@ -128,9 +130,9 @@ class ChatViewController: JSQMessagesViewController {
         return bubbleImageFactory!.incomingMessagesBubbleImage(with: UIColor.jsq_messageBubbleGreen())
     }
 
-    private func postMessage(name: String, message: String) {
-        let params: Parameters = ["sender": name, "text": message]
-        hitEndpoint(url: ChatViewController.API_ENDPOINT + "/messages", parameters: params)
+    private func postMessage(message: AnonMessage) {
+        let params: Parameters = ["sender": message.senderId, "text": message.text]
+        hitEndpoint(url: ChatViewController.API_ENDPOINT + "/messages", parameters: params, message: message)
     }
     
     private func sendIsTypingEvent(forUser: String) {
@@ -143,25 +145,36 @@ class ChatViewController: JSQMessagesViewController {
         }
     }
     
-    private func hitEndpoint(url: String, parameters: Parameters) {
+    private func hitEndpoint(url: String, parameters: Parameters, message: AnonMessage? = nil) {
         Alamofire.request(url, method: .post, parameters: parameters).validate().responseJSON { response in
             switch response.result {
             case .success:
                 self.isBusySendingEvent = false
-                // Succeeded, do something
-                print("Succeeded")
+
+                if message != nil {
+                    message?.status = .delivered
+                    self.collectionView.reloadData()
+                }
+                
             case .failure(let error):
                 self.isBusySendingEvent = false
-                // Failed, do something
                 print(error)
             }
         }
     }
 
-    private func addMessage(senderId: String, name: String, text: String) {
-        if let message = AnonMessage(senderId: senderId, status: AnonMessageStatus.sending, displayName: name, text: text) {
-            messages.append(message)
+    private func addMessage(senderId: String, name: String, text: String) -> Any? {
+        let leStatus = senderId == self.senderId
+            ? AnonMessageStatus.sending
+            : AnonMessageStatus.delivered
+        
+        let message = AnonMessage(senderId: senderId, status: leStatus, displayName: name, text: text, id: messages.count)
+        
+        if (message != nil) {
+            messages.append(message as AnonMessage!)
         }
+        
+        return message
     }
     
     private func listenForNewMessages() {
@@ -169,7 +182,7 @@ class ChatViewController: JSQMessagesViewController {
             host: .cluster("mt1")
         )
         
-        pusher = Pusher(key: "PUSHER_ID", options: options)
+        pusher = Pusher(key: "4a2632feed06a8ef84f9", options: options)
         
         let channel = pusher.subscribe("chatroom")
 
@@ -179,7 +192,10 @@ class ChatViewController: JSQMessagesViewController {
 
                 if author != self.senderId {
                     let text = data["text"] as! String
-                    self.addMessage(senderId: author, name: author, text: text)
+                    
+                    let message = self.addMessage(senderId: author, name: author, text: text) as! AnonMessage?
+                    message?.status = .delivered
+                    
                     self.finishReceivingMessage(animated: true)
                 }
             }

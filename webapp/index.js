@@ -2,14 +2,15 @@ var path = require('path');
 var Pusher = require('pusher');
 var express = require('express');
 var bodyParser = require('body-parser');
+var sleep = require('sleep');
 
 var app = express();
 
 var pusher = new Pusher({
-  appId: 'PUSHER_ID',
-  key: 'PUSHER_KEY',
-  secret: 'PUSHER_SECRET',
-  cluster: 'PUSHER_CLUSTER',
+  appId: '337228',
+  key: '4a2632feed06a8ef84f9',
+  secret: '6ffdb41fb1e9925f5e6e',
+  cluster: 'mt1',
   encrypted: true
 });
 
@@ -21,6 +22,10 @@ app.post('/messages', function(req, res){
     text: req.body.text,
     sender: req.body.sender
   }
+
+  // @DEV: Simulate network delays...
+  sleep.sleep(2);
+
   pusher.trigger('chatroom', 'new_message', message);
   res.json({success: 200});
 });
