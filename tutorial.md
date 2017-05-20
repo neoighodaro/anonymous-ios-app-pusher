@@ -20,84 +20,11 @@ Open the root directory of the source code you downloaded above, then, open the 
 
 ### What we need to do
 
-To make this application do what we need it to do we need to do some new things. First, we will add a text field in the login screen that allows the user input whatever username they want to be known as. Next, we will add a new endpoint to the web server application that will trigger Pusher once someone starts typing. We will add a new listener in the application that listens in for when someone is typing and finally we will trigger the new endpoint when someone is entering text into the 'New message' field.
+To make this application do what we need it to do we need to do some new things. First, we will add a new endpoint to the web server application that will trigger Pusher once someone starts typing. We will add a new listener in the application that listens in for when someone is typing and finally we will trigger the new endpoint when someone is entering text into the 'New message' field.
 
-Drag a textfield to the login view and make it look like what is in the screenshot below. 
+Drag a textfield to the login view and make it look like what is in the screenshot below.
 
 ![How to build a who's typing feature in iOS](https://dl.dropbox.com/s/vi72z93rudgih94/add-whos-typing-feature-ios-app-using-pusher-3.png)
-
-#### Updating the Login Controller
-
-Open the split view and make sure the `WelcomeViewController` is the one on the right. You have to now create an `@IBOutlet` for both the login textfield and an `@IBAction` for the login button. Your `WelcomeViewController` should now look something like this:
-
-```swift
-import UIKit
-
-class WelcomeViewController: UIViewController {
-    var username : String = ""
-
-    @IBOutlet weak var loginBtn: UIButton!
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-
-    @IBAction func editingUsername(_ sender: UITextField) {
-    }
-}
-```
-
-Now we need to add some validation to the text field and then when the validation passes, we can then assign the username entered to the `ChatViewController` and load the `ChatViewController`.
-
-```swift
-import UIKit
-
-class WelcomeViewController: UIViewController {
-    var username : String = ""
-
-    @IBOutlet weak var loginBtn: UIButton!
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-
-
-    @IBAction func editingUsername(_ sender: UITextField) {
-        if sender.hasText && (sender.text?.characters.count)! >= 3 && noCaps(text: sender.text!) && noSpaces(text: sender.text!) {
-            loginBtn.isEnabled = true
-        } else {
-            loginBtn.isEnabled = false
-        }
-        
-        username = sender.text!
-    }
-    
-    private func noSpaces(text: String) -> Bool {
-        let range = text.rangeOfCharacter(from: .whitespaces)
-        
-        return range == nil
-    }
-    
-    private func noCaps(text : String) -> Bool {
-        let capitalLetterRegEx  = ".*[A-Z]+.*"
-        let texttest = NSPredicate(format:"SELF MATCHES %@", capitalLetterRegEx)
-        let capitalresult = texttest.evaluate(with: text)
-        return capitalresult == false
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        segue.destination.childViewControllers.forEach({ (viewController) in
-            let classname = (NSStringFromClass(viewController.classForCoder).components(separatedBy: ".").last!)
-            if classname == "ChatViewController" {
-                let controller = viewController as? ChatViewController
-                controller?.setSenderId(name: self.username)
-            }
-        })
-    }
-}
-```
-
-This is the full `WelcomeViewController` after we have effected the changes. As you can see, the `editingUsername` checks to see if there is actually text, then if the username is 3 characters and longer. It then checks to see if there are `noCaps` and finally if there are `noSpaces`/. If all these pass then it sets the username. The `prepare` method then uses the `setSenderId` on the `ChatViewController` to set the username to a property in there.
 
 #### Adding the endpoint on the web server
 
@@ -165,11 +92,16 @@ In the `sendIsTypingEvent` we have a quick flag that we use to stop the applicat
 
 #### Adding a listener to pick when others are typing
 
-The last piece of the puzzle is adding a listener that picks up when someone else is typing and changes the view controllers title bar to `someone is typing…`. To do this, we would use the `subscribe` method on the `PusherChannel` object. 
+The last piece of the puzzle is adding a listener that picks up when someone else is typing and changes the view controllers title bar to `someone is typing…`. To do this, we would use the `subscribe` method on the `PusherChannel` object.
 
 ```Swift
 override func viewDidLoad() {
     super.viewDidLoad()
+
+    let n = Int(arc4random_uniform(1000))
+
+    senderId = "anonymous" + String(n)
+    senderDisplayName = senderId
 
     inputToolbar.contentView.leftBarButtonItem = nil
 
@@ -185,22 +117,22 @@ override func viewDidLoad() {
     collectionView?.layoutIfNeeded()
 
     listenForNewMessages()
-    
+
     isTypingEventLifetime = Timer.scheduledTimer(timeInterval: 2.0,
                                                  target: self,
                                                  selector: #selector(isTypingEventExpireAction),
                                                  userInfo: nil,
                                                  repeats: true)
-    
+
 }
 
 private func listenForNewMessages() {
     let options = PusherClientOptions(
         host: .cluster("PUSHER_CLUSTER")
     )
-    
+
     pusher = Pusher(key: "PUSHER_ID", options: options)
-    
+
     let channel = pusher.subscribe("chatroom")
 
     channel.bind(eventName: "new_message", callback: { (data: Any?) -> Void in
@@ -224,7 +156,7 @@ private func listenForNewMessages() {
             }
         }
     })
-    
+
     pusher.connect()
 }
 
