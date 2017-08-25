@@ -1,6 +1,8 @@
 # v1.2 Adding a message delivery feature
 This demonstrates how to add a message delivery feature to our iOS chat application using Pusher.
 
+[![Get help on Codementor](https://cdn.codementor.io/badges/get_help_github.svg)](https://www.codementor.io/neoighodaro?utm_source=github&utm_medium=button&utm_term=neoighodaro&utm_campaign=github)
+
 ### v1.1.1 Adding a who's typing feature in iOS
 This would demonstrate how to add a who's typing feature to the anonymous public iOS chat app we created in v1.0
 
